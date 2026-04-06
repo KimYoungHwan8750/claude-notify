@@ -52,6 +52,7 @@ echo "  Install dir: $INSTALL_DIR"
 mkdir -p "$INSTALL_DIR"
 cp notify-hook.sh "$INSTALL_DIR/"
 cp notify-hook.ps1 "$INSTALL_DIR/"
+cp notify-hook.vbs "$INSTALL_DIR/"
 cp translations.json "$INSTALL_DIR/"
 
 # Write config
