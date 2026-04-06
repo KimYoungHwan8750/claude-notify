@@ -11,7 +11,11 @@ Windows toast notifications for Claude Code. Know when your task is done without
 
 - Shows a Windows toast notification when Claude Code finishes a response or needs input
 - Displays the **project name** and a **summary** of what Claude said
-- Click the notification to **focus your editor** on that project
+- **Smart click behavior**:
+  - If the project is already open in your editor → click focuses that window
+  - If the project isn't open (terminal-only work) → click is a no-op, so you don't get an unwanted new window
+- Notification **persists** until you dismiss it (no more missed alerts)
+- **Multilingual** — English (default) and Korean built-in
 
 ## Supported Editors
 
@@ -36,9 +40,9 @@ With Cursor as default editor:
 bash install.sh --editor cursor
 ```
 
-With custom waiting message (e.g. Korean):
+With Korean language:
 ```bash
-bash install.sh --editor cursor --waiting-text "입력 대기 중"
+bash install.sh --editor cursor --lang ko
 ```
 
 ## Manual Setup
@@ -48,7 +52,7 @@ bash install.sh --editor cursor --waiting-text "입력 대기 중"
    ```json
    {
      "editor": "vscode",
-     "waitingText": "Waiting for input"
+     "lang": "en"
    }
    ```
 3. Add hooks to `~/.claude/settings.json`:
@@ -68,10 +72,25 @@ Claude Code (Stop/Notification event)
   → stdin JSON piped to notify-hook.sh
   → saves JSON to temp file (stdin can't pass through `start`)
   → `start` launches PowerShell in desktop session
-  → notify-hook.ps1 reads JSON, builds toast XML
-  → Windows Toast API shows notification
+  → notify-hook.ps1 reads JSON
+  → checks if editor has project open (via Get-Process window titles)
+  → builds toast XML with launch URI (or no-op if project not open)
+  → Windows Toast API shows persistent notification
   → click → editor focuses via protocol URI
 ```
+
+### Smart click behavior
+
+When you click the notification, the script checks whether the target editor
+is already running with your project. It does this by enumerating editor
+processes (`Code.exe`, `Cursor.exe`, etc.) and matching the project folder
+name against each window's title segments (split by ` - `).
+
+- **Project is open** → clicking launches `<editor>://file/<path>`, which
+  focuses the existing window
+- **Project is not open** → clicking uses a background activation with no
+  handler, so it just dismisses the notification instead of opening a new
+  editor window (useful when you're working in the terminal only)
 
 ## Troubleshooting
 
@@ -86,8 +105,6 @@ Claude Code (Stop/Notification event)
 ### Click doesn't focus editor
 - Make sure your editor is registered as a protocol handler (installed normally via installer, not portable)
 
-## Change editor
-
 ## Configuration
 
 Edit `~/.claude/claude-code-toast/config.json`:
@@ -95,14 +112,21 @@ Edit `~/.claude/claude-code-toast/config.json`:
 ```json
 {
   "editor": "cursor",
-  "waitingText": "Waiting for input"
+  "lang": "ko"
 }
 ```
 
 | Key | Description | Default |
 |-----|-------------|---------|
 | `editor` | Editor protocol name for click-to-focus | `vscode` |
-| `waitingText` | Body text shown on `Notification` event | `Waiting for input` |
+| `lang` | Notification language (`en`, `ko`) | `en` |
+
+### Supported languages
+
+| Code | Language | `Notification` event text |
+|------|----------|---------------------------|
+| `en` | English | `Waiting for input` |
+| `ko` | Korean | `입력 대기 중` |
 
 No restart needed — takes effect on next notification.
 

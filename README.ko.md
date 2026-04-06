@@ -11,7 +11,11 @@ Claude Code를 위한 Windows 토스트 알림. 터미널을 계속 쳐다보지
 
 - Claude Code가 응답을 끝내거나 입력을 기다릴 때 Windows 토스트 알림 표시
 - **프로젝트 이름**과 Claude 응답의 **요약 내용** 표시
-- 알림 클릭 시 해당 프로젝트를 **에디터에서 바로 포커스**
+- **스마트 클릭 동작**:
+  - 에디터에서 해당 프로젝트가 이미 열려있으면 → 클릭 시 그 창으로 포커스
+  - 열려있지 않으면 (터미널로만 작업 중) → 클릭해도 아무것도 안 열림 (원치 않는 새 창 방지)
+- 사용자가 직접 닫을 때까지 알림이 **유지됨** (놓치는 알림 없음)
+- **다국어 지원** — 영어 (기본값) / 한국어 내장
 
 ## 지원 에디터
 
@@ -36,9 +40,9 @@ Cursor를 기본 에디터로 설치:
 bash install.sh --editor cursor
 ```
 
-대기 메시지를 한국어로 설치:
+한국어로 설치:
 ```bash
-bash install.sh --editor cursor --waiting-text "입력 대기 중"
+bash install.sh --editor cursor --lang ko
 ```
 
 ## 수동 설치
@@ -48,7 +52,7 @@ bash install.sh --editor cursor --waiting-text "입력 대기 중"
    ```json
    {
      "editor": "vscode",
-     "waitingText": "입력 대기 중"
+     "lang": "ko"
    }
    ```
 3. `~/.claude/settings.json`에 hook 추가:
@@ -68,10 +72,22 @@ Claude Code (Stop / Notification 이벤트)
   → stdin JSON을 notify-hook.sh로 전달
   → 임시 파일로 저장 (start 명령은 stdin을 전달 못 함)
   → start로 데스크톱 세션에서 PowerShell 실행
-  → notify-hook.ps1이 JSON을 읽고 toast XML 생성
-  → Windows Toast API로 알림 표시
+  → notify-hook.ps1이 JSON을 읽음
+  → 에디터 프로세스의 창 타이틀을 확인해 프로젝트 열림 여부 판단
+  → 열림 상태에 따라 launch URI가 있거나 없는 toast XML 생성
+  → Windows Toast API로 지속 알림 표시
   → 클릭 시 protocol URI로 에디터 포커스
 ```
+
+### 스마트 클릭 동작
+
+알림을 클릭하면 스크립트가 대상 에디터가 해당 프로젝트와 함께 실행 중인지
+확인합니다. 에디터 프로세스(`Code.exe`, `Cursor.exe` 등)를 열거하고, 각 창의
+타이틀을 ` - `로 분리한 세그먼트 중에 프로젝트 폴더 이름이 있는지 비교합니다.
+
+- **프로젝트가 열려있음** → `<editor>://file/<path>` 프로토콜로 기존 창에 포커스
+- **프로젝트가 열려있지 않음** → 핸들러가 없는 background activation으로 처리되어
+  새 에디터 창이 열리지 않고 알림만 닫힘 (터미널 작업 중일 때 유용)
 
 ## 문제 해결
 
@@ -93,14 +109,21 @@ Claude Code (Stop / Notification 이벤트)
 ```json
 {
   "editor": "cursor",
-  "waitingText": "입력 대기 중"
+  "lang": "ko"
 }
 ```
 
 | 키 | 설명 | 기본값 |
 |-----|------|--------|
 | `editor` | 알림 클릭 시 포커스할 에디터 프로토콜 이름 | `vscode` |
-| `waitingText` | `Notification` 이벤트 시 표시할 본문 텍스트 | `Waiting for input` |
+| `lang` | 알림 언어 (`en`, `ko`) | `en` |
+
+### 지원 언어
+
+| 코드 | 언어 | `Notification` 이벤트 본문 |
+|------|------|--------------------------|
+| `en` | 영어 | `Waiting for input` |
+| `ko` | 한국어 | `입력 대기 중` |
 
 재시작 불필요 — 다음 알림부터 바로 반영됩니다.
 

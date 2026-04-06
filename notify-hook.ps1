@@ -5,13 +5,21 @@ $configPath = Join-Path $scriptDir "config.json"
 
 # Defaults
 $editor = "vscode"
-$waitingText = "Waiting for input"
+$lang = "en"
 
 if (Test-Path $configPath) {
     $config = Get-Content $configPath -Raw -Encoding UTF8 | ConvertFrom-Json
     if ($config.editor) { $editor = $config.editor }
-    if ($config.waitingText) { $waitingText = $config.waitingText }
+    if ($config.lang) { $lang = $config.lang }
 }
+
+# Built-in translations
+$translations = @{
+    "en" = @{ "waitingForInput" = "Waiting for input" }
+    "ko" = @{ "waitingForInput" = "입력 대기 중" }
+}
+if (-not $translations.ContainsKey($lang)) { $lang = "en" }
+$t = $translations[$lang]
 
 $json = Get-Content $JsonFile -Raw -Encoding UTF8 | ConvertFrom-Json
 
@@ -29,7 +37,7 @@ $title = "Claude Code [$project]"
 if ($event -eq "Stop") {
     $body = $msg
 } else {
-    $body = $waitingText
+    $body = $t["waitingForInput"]
 }
 
 # Map editor name to Windows process name

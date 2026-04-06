@@ -2,23 +2,23 @@
 set -e
 
 EDITOR="vscode"
-WAITING_TEXT="Waiting for input"
+LANG_CODE="en"
 INSTALL_DIR="$HOME/.claude/claude-code-toast"
 
 usage() {
     echo "Usage: install.sh [OPTIONS]"
     echo ""
     echo "Options:"
-    echo "  --editor <name>         Set default editor (default: vscode)"
-    echo "                          Supported: vscode, cursor, windsurf"
-    echo "  --waiting-text <text>   Text shown on Notification event"
-    echo "                          (default: \"Waiting for input\")"
-    echo "  --help                  Show this help"
+    echo "  --editor <name>   Set default editor (default: vscode)"
+    echo "                    Supported: vscode, cursor, windsurf"
+    echo "  --lang <code>     Notification language (default: en)"
+    echo "                    Supported: en, ko"
+    echo "  --help            Show this help"
     echo ""
     echo "Examples:"
     echo "  bash install.sh"
     echo "  bash install.sh --editor cursor"
-    echo "  bash install.sh --editor cursor --waiting-text \"입력 대기 중\""
+    echo "  bash install.sh --editor cursor --lang ko"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -27,8 +27,8 @@ while [[ $# -gt 0 ]]; do
             EDITOR="$2"
             shift 2
             ;;
-        --waiting-text)
-            WAITING_TEXT="$2"
+        --lang)
+            LANG_CODE="$2"
             shift 2
             ;;
         --help)
@@ -45,7 +45,7 @@ done
 
 echo "Installing claude-code-toast..."
 echo "  Editor: $EDITOR"
-echo "  Waiting text: $WAITING_TEXT"
+echo "  Language: $LANG_CODE"
 echo "  Install dir: $INSTALL_DIR"
 
 # Copy files
@@ -57,7 +57,7 @@ cp notify-hook.ps1 "$INSTALL_DIR/"
 cat > "$INSTALL_DIR/config.json" <<EOF
 {
   "editor": "$EDITOR",
-  "waitingText": "$WAITING_TEXT"
+  "lang": "$LANG_CODE"
 }
 EOF
 
@@ -94,4 +94,4 @@ fi
 echo ""
 echo "Done! Restart Claude Code to activate notifications."
 echo ""
-echo "To change editor later, edit: $INSTALL_DIR/config.json"
+echo "To change editor or language later, edit: $INSTALL_DIR/config.json"
