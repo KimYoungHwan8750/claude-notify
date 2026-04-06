@@ -2,25 +2,33 @@
 set -e
 
 EDITOR="vscode"
+WAITING_TEXT="Waiting for input"
 INSTALL_DIR="$HOME/.claude/claude-code-toast"
 
 usage() {
     echo "Usage: install.sh [OPTIONS]"
     echo ""
     echo "Options:"
-    echo "  --editor <name>   Set default editor (default: vscode)"
-    echo "                    Supported: vscode, cursor, windsurf"
-    echo "  --help            Show this help"
+    echo "  --editor <name>         Set default editor (default: vscode)"
+    echo "                          Supported: vscode, cursor, windsurf"
+    echo "  --waiting-text <text>   Text shown on Notification event"
+    echo "                          (default: \"Waiting for input\")"
+    echo "  --help                  Show this help"
     echo ""
     echo "Examples:"
     echo "  bash install.sh"
     echo "  bash install.sh --editor cursor"
+    echo "  bash install.sh --editor cursor --waiting-text \"입력 대기 중\""
 }
 
 while [[ $# -gt 0 ]]; do
     case $1 in
         --editor)
             EDITOR="$2"
+            shift 2
+            ;;
+        --waiting-text)
+            WAITING_TEXT="$2"
             shift 2
             ;;
         --help)
@@ -37,6 +45,7 @@ done
 
 echo "Installing claude-code-toast..."
 echo "  Editor: $EDITOR"
+echo "  Waiting text: $WAITING_TEXT"
 echo "  Install dir: $INSTALL_DIR"
 
 # Copy files
@@ -47,7 +56,8 @@ cp notify-hook.ps1 "$INSTALL_DIR/"
 # Write config
 cat > "$INSTALL_DIR/config.json" <<EOF
 {
-  "editor": "$EDITOR"
+  "editor": "$EDITOR",
+  "waitingText": "$WAITING_TEXT"
 }
 EOF
 

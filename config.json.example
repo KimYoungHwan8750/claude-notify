@@ -1,3 +1,4 @@
 {
-  "editor": "vscode"
+  "editor": "vscode",
+  "waitingText": "Waiting for input"
 }

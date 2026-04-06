@@ -36,12 +36,20 @@ With Cursor as default editor:
 bash install.sh --editor cursor
 ```
 
+With custom waiting message (e.g. Korean):
+```bash
+bash install.sh --editor cursor --waiting-text "입력 대기 중"
+```
+
 ## Manual Setup
 
 1. Copy `notify-hook.sh` and `notify-hook.ps1` to `~/.claude/claude-code-toast/`
 2. Create `config.json`:
    ```json
-   { "editor": "vscode" }
+   {
+     "editor": "vscode",
+     "waitingText": "Waiting for input"
+   }
    ```
 3. Add hooks to `~/.claude/settings.json`:
    ```json
@@ -80,10 +88,21 @@ Claude Code (Stop/Notification event)
 
 ## Change editor
 
+## Configuration
+
 Edit `~/.claude/claude-code-toast/config.json`:
+
 ```json
-{ "editor": "cursor" }
+{
+  "editor": "cursor",
+  "waitingText": "Waiting for input"
+}
 ```
+
+| Key | Description | Default |
+|-----|-------------|---------|
+| `editor` | Editor protocol name for click-to-focus | `vscode` |
+| `waitingText` | Body text shown on `Notification` event | `Waiting for input` |
 
 No restart needed — takes effect on next notification.
 

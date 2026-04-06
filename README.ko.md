@@ -36,12 +36,20 @@ Cursor를 기본 에디터로 설치:
 bash install.sh --editor cursor
 ```
 
+대기 메시지를 한국어로 설치:
+```bash
+bash install.sh --editor cursor --waiting-text "입력 대기 중"
+```
+
 ## 수동 설치
 
 1. `notify-hook.sh`, `notify-hook.ps1` 파일을 `~/.claude/claude-code-toast/`에 복사
 2. `config.json` 생성:
    ```json
-   { "editor": "vscode" }
+   {
+     "editor": "vscode",
+     "waitingText": "입력 대기 중"
+   }
    ```
 3. `~/.claude/settings.json`에 hook 추가:
    ```json
@@ -78,12 +86,21 @@ Claude Code (Stop / Notification 이벤트)
 ### 클릭해도 에디터 포커스가 안 돼요
 - 에디터가 프로토콜 핸들러로 등록되어 있어야 합니다 (포터블 버전이 아닌 정상 설치 버전)
 
-## 에디터 변경
+## 설정
 
 `~/.claude/claude-code-toast/config.json` 파일 수정:
+
 ```json
-{ "editor": "cursor" }
+{
+  "editor": "cursor",
+  "waitingText": "입력 대기 중"
+}
 ```
+
+| 키 | 설명 | 기본값 |
+|-----|------|--------|
+| `editor` | 알림 클릭 시 포커스할 에디터 프로토콜 이름 | `vscode` |
+| `waitingText` | `Notification` 이벤트 시 표시할 본문 텍스트 | `Waiting for input` |
 
 재시작 불필요 — 다음 알림부터 바로 반영됩니다.
 
