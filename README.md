@@ -4,7 +4,7 @@ English | [한국어](README.ko.md)
 
 Windows toast notifications for Claude Code. Know when your task is done without watching the terminal.
 
-![Windows 11](https://img.shields.io/badge/Windows%2011-0078D4?logo=windows11&logoColor=white)
+![Windows 10/11](https://img.shields.io/badge/Windows%2010%2F11-0078D4?logo=windows&logoColor=white)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-Hook-orange)
 
 ## What it does
@@ -132,7 +132,7 @@ No restart needed — takes effect on next notification.
 
 ## Requirements
 
-- Windows 10/11
+- Windows 10 (version 1607+) or Windows 11
 - Claude Code with hooks support
 - Git Bash (comes with Git for Windows)
 

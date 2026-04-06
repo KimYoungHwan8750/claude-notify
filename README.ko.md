@@ -4,7 +4,7 @@
 
 Claude Code를 위한 Windows 토스트 알림. 터미널을 계속 쳐다보지 않아도 작업 완료를 바로 알 수 있습니다.
 
-![Windows 11](https://img.shields.io/badge/Windows%2011-0078D4?logo=windows11&logoColor=white)
+![Windows 10/11](https://img.shields.io/badge/Windows%2010%2F11-0078D4?logo=windows&logoColor=white)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-Hook-orange)
 
 ## 주요 기능
@@ -129,7 +129,7 @@ Claude Code (Stop / Notification 이벤트)
 
 ## 요구사항
 
-- Windows 10/11
+- Windows 10 (version 1607 이상) 또는 Windows 11
 - Hook을 지원하는 Claude Code
 - Git Bash (Git for Windows에 포함됨)
 
