@@ -16,6 +16,7 @@ Windows toast notifications for Claude Code. Know when your task is done without
   - If the project isn't open (terminal-only work) → click is a no-op, so you don't get an unwanted new window
 - Notification **persists** until you dismiss it (no more missed alerts)
 - **Multilingual** — English (default) and Korean built-in
+- **Minimal editor title** — installer trims your editor's window title to `<project> - <editor>` (hides file name and profile name). Opt out with `--no-hide-profile`
 
 ## Supported Editors
 
@@ -43,6 +44,11 @@ bash install.sh --editor cursor
 With Korean language:
 ```bash
 bash install.sh --editor cursor --lang ko
+```
+
+Skip the editor title patch:
+```bash
+bash install.sh --editor cursor --no-hide-profile
 ```
 
 ## Manual Setup
@@ -129,6 +135,33 @@ Edit `~/.claude/claude-code-toast/config.json`:
 | `ko` | Korean | `입력 대기 중` |
 
 No restart needed — takes effect on next notification.
+
+## Editor window title patch
+
+By default, `install.sh` patches your editor's user `settings.json` to override
+`window.title`, removing the file name and profile name segments. The result is
+a minimal title like `yhlib - Cursor` instead of
+`turbo.json - yhlib - vscode - Cursor`.
+
+| Editor | Patched file |
+|--------|--------------|
+| VS Code | `%APPDATA%\Code\User\settings.json` |
+| Cursor | `%APPDATA%\Cursor\User\settings.json` |
+| Windsurf | `%APPDATA%\Windsurf\User\settings.json` |
+
+Inserted value:
+```json
+"window.title": "${rootName}${separator}${appName}"
+```
+
+**The installer leaves your existing settings alone**:
+- If `window.title` is already set, it is not overwritten
+- Other keys are preserved as-is (text-based insertion, not JSON parsing — JSONC
+  comments and trailing commas are kept)
+- Restart your editor for the change to take effect
+
+To opt out, pass `--no-hide-profile` during install. To revert, delete the
+`window.title` line from the patched `settings.json`.
 
 ## Requirements
 

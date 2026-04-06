@@ -16,6 +16,7 @@ Claude Code를 위한 Windows 토스트 알림. 터미널을 계속 쳐다보지
   - 열려있지 않으면 (터미널로만 작업 중) → 클릭해도 아무것도 안 열림 (원치 않는 새 창 방지)
 - 사용자가 직접 닫을 때까지 알림이 **유지됨** (놓치는 알림 없음)
 - **다국어 지원** — 영어 (기본값) / 한국어 내장
+- **미니멀 에디터 타이틀** — 설치 시 에디터 창 타이틀을 `<프로젝트> - <에디터>` 형식으로 줄여줌 (파일명/프로필명 숨김). 원치 않으면 `--no-hide-profile`
 
 ## 지원 에디터
 
@@ -43,6 +44,11 @@ bash install.sh --editor cursor
 한국어로 설치:
 ```bash
 bash install.sh --editor cursor --lang ko
+```
+
+에디터 타이틀 패치를 건너뛰려면:
+```bash
+bash install.sh --editor cursor --no-hide-profile
 ```
 
 ## 수동 설치
@@ -126,6 +132,31 @@ Claude Code (Stop / Notification 이벤트)
 | `ko` | 한국어 | `입력 대기 중` |
 
 재시작 불필요 — 다음 알림부터 바로 반영됩니다.
+
+## 에디터 창 타이틀 패치
+
+기본적으로 `install.sh`는 사용자 에디터의 user `settings.json`을 수정해서
+`window.title`을 오버라이드합니다. 파일명과 프로필명 세그먼트가 사라져
+`turbo.json - yhlib - vscode - Cursor` 대신 `yhlib - Cursor` 형태로 표시돼요.
+
+| 에디터 | 패치 대상 파일 |
+|--------|--------------|
+| VS Code | `%APPDATA%\Code\User\settings.json` |
+| Cursor | `%APPDATA%\Cursor\User\settings.json` |
+| Windsurf | `%APPDATA%\Windsurf\User\settings.json` |
+
+삽입되는 값:
+```json
+"window.title": "${rootName}${separator}${appName}"
+```
+
+**기존 설정은 보존됩니다**:
+- `window.title`이 이미 설정돼 있으면 덮어쓰지 않음
+- 다른 키들은 그대로 유지 (JSON 파싱이 아닌 텍스트 기반 삽입이라 JSONC 주석/트레일링 콤마도 보존)
+- 변경사항은 에디터 재시작 후 반영됨
+
+옵트아웃하려면 설치 시 `--no-hide-profile` 옵션을 주세요. 되돌리려면
+패치된 `settings.json`에서 `window.title` 줄을 삭제하면 됩니다.
 
 ## 요구사항
 
