@@ -20,6 +20,7 @@ if (-not $translations.$lang) { $lang = "en" }
 $t = $translations.$lang
 
 $json = Get-Content $JsonFile -Raw -Encoding UTF8 | ConvertFrom-Json
+Remove-Item $JsonFile -ErrorAction SilentlyContinue
 
 $project = Split-Path $json.cwd -Leaf
 $cwd = $json.cwd -replace '\\', '/'
