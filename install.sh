@@ -115,9 +115,9 @@ if [ "$HIDE_TITLE" = "1" ]; then
         echo "[skip] Cannot patch window.title (unsupported editor or APPDATA missing)"
     else
         SETTINGS="$APPDATA/$EDITOR_DIR/User/settings.json"
-        TITLE_VALUE='${rootName}${separator}${appName}'
+        TITLE_VALUE='${activeEditorShort} [${rootName}]'
         echo ""
-        echo "Patching $EDITOR_DIR window.title (hides file name and profile name)..."
+        echo "Patching $EDITOR_DIR window.title (hides profile name and editor name)..."
 
         if [ ! -f "$SETTINGS" ] || [ ! -s "$SETTINGS" ]; then
             mkdir -p "$(dirname "$SETTINGS")"

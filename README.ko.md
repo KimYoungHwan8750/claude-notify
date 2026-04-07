@@ -16,7 +16,7 @@ Claude Code를 위한 Windows 토스트 알림. 터미널을 계속 쳐다보지
   - 열려있지 않으면 (터미널로만 작업 중) → 클릭해도 아무것도 안 열림 (원치 않는 새 창 방지)
 - 사용자가 직접 닫을 때까지 알림이 **유지됨** (놓치는 알림 없음)
 - **다국어 지원** — 영어 (기본값) / 한국어 내장
-- **미니멀 에디터 타이틀** — 설치 시 에디터 창 타이틀을 `<프로젝트> - <에디터>` 형식으로 줄여줌 (파일명/프로필명 숨김). 원치 않으면 `--no-hide-profile`
+- **미니멀 에디터 타이틀** — 설치 시 에디터 창 타이틀을 `<파일> [<프로젝트>]` 형식으로 줄여줌 (프로필명/에디터명 숨김). 원치 않으면 `--no-hide-profile`
 
 ## 지원 에디터
 
@@ -88,8 +88,11 @@ Claude Code (Stop / Notification 이벤트)
 ### 스마트 클릭 동작
 
 알림을 클릭하면 스크립트가 대상 에디터가 해당 프로젝트와 함께 실행 중인지
-확인합니다. 에디터 프로세스(`Code.exe`, `Cursor.exe` 등)를 열거하고, 각 창의
-타이틀을 ` - `로 분리한 세그먼트 중에 프로젝트 폴더 이름이 있는지 비교합니다.
+확인합니다. Win32 `EnumWindows`로 에디터 프로세스(`Code.exe`, `Cursor.exe` 등)의
+모든 top-level 창을 열거하고, word-boundary regex로 프로젝트 폴더 이름이 창
+타이틀에 포함되어 있는지 검사합니다. 기본 형식(`file - project - profile - app`)과
+패치된 형식(`file [project]`) 둘 다 동작하며, `lib`이 `library.txt`에 매치되는
+부분 매칭 false positive도 방지됩니다.
 
 - **프로젝트가 열려있음** → `<editor>://file/<path>` 프로토콜로 기존 창에 포커스
 - **프로젝트가 열려있지 않음** → 핸들러가 없는 background activation으로 처리되어
@@ -136,8 +139,9 @@ Claude Code (Stop / Notification 이벤트)
 ## 에디터 창 타이틀 패치
 
 기본적으로 `install.sh`는 사용자 에디터의 user `settings.json`을 수정해서
-`window.title`을 오버라이드합니다. 파일명과 프로필명 세그먼트가 사라져
-`turbo.json - yhlib - vscode - Cursor` 대신 `yhlib - Cursor` 형태로 표시돼요.
+`window.title`을 오버라이드합니다. 프로필명과 에디터명 세그먼트가 사라져
+`turbo.json - yhlib - vscode - Cursor` 대신 `turbo.json [yhlib]` 형태로
+표시돼요.
 
 | 에디터 | 패치 대상 파일 |
 |--------|--------------|
@@ -147,7 +151,7 @@ Claude Code (Stop / Notification 이벤트)
 
 삽입되는 값:
 ```json
-"window.title": "${rootName}${separator}${appName}"
+"window.title": "${activeEditorShort} [${rootName}]"
 ```
 
 **기존 설정은 보존됩니다**:
@@ -157,6 +161,12 @@ Claude Code (Stop / Notification 이벤트)
 
 옵트아웃하려면 설치 시 `--no-hide-profile` 옵션을 주세요. 되돌리려면
 패치된 `settings.json`에서 `window.title` 줄을 삭제하면 됩니다.
+
+**이전 버전에서 업그레이드하는 경우**: 이전 버전 설치로 옛 포맷
+(`${rootName}${separator}${appName}`)이 이미 들어가 있다면, 설치 스크립트의
+"already set, leaving alone" 가드로 인해 자동 갱신되지 않습니다. 새 포맷을
+적용하려면 에디터의 `settings.json`을 직접 열어 `window.title` 값을
+`"${activeEditorShort} [${rootName}]"` 으로 교체하세요.
 
 ## 요구사항
 

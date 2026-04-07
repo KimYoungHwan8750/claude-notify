@@ -16,7 +16,7 @@ Windows toast notifications for Claude Code. Know when your task is done without
   - If the project isn't open (terminal-only work) → click is a no-op, so you don't get an unwanted new window
 - Notification **persists** until you dismiss it (no more missed alerts)
 - **Multilingual** — English (default) and Korean built-in
-- **Minimal editor title** — installer trims your editor's window title to `<project> - <editor>` (hides file name and profile name). Opt out with `--no-hide-profile`
+- **Minimal editor title** — installer trims your editor's window title to `<file> [<project>]` (hides profile name and editor name). Opt out with `--no-hide-profile`
 
 ## Supported Editors
 
@@ -89,8 +89,11 @@ Claude Code (Stop/Notification event)
 
 When you click the notification, the script checks whether the target editor
 is already running with your project. It does this by enumerating editor
-processes (`Code.exe`, `Cursor.exe`, etc.) and matching the project folder
-name against each window's title segments (split by ` - `).
+processes (`Code.exe`, `Cursor.exe`, etc.) via Win32 `EnumWindows` and
+matching the project folder name against each window's title using a
+word-boundary regex. This works for both the default title format
+(`file - project - profile - app`) and the patched format (`file [project]`),
+and avoids false positives like `lib` matching `library.txt`.
 
 - **Project is open** → clicking launches `<editor>://file/<path>`, which
   focuses the existing window
@@ -139,8 +142,8 @@ No restart needed — takes effect on next notification.
 ## Editor window title patch
 
 By default, `install.sh` patches your editor's user `settings.json` to override
-`window.title`, removing the file name and profile name segments. The result is
-a minimal title like `yhlib - Cursor` instead of
+`window.title`, hiding the profile name and editor name segments. The result is
+a minimal title like `turbo.json [yhlib]` instead of
 `turbo.json - yhlib - vscode - Cursor`.
 
 | Editor | Patched file |
@@ -151,7 +154,7 @@ a minimal title like `yhlib - Cursor` instead of
 
 Inserted value:
 ```json
-"window.title": "${rootName}${separator}${appName}"
+"window.title": "${activeEditorShort} [${rootName}]"
 ```
 
 **The installer leaves your existing settings alone**:
@@ -162,6 +165,12 @@ Inserted value:
 
 To opt out, pass `--no-hide-profile` during install. To revert, delete the
 `window.title` line from the patched `settings.json`.
+
+**Upgrading from an older version?** If a previous install of this tool wrote
+the old format (`${rootName}${separator}${appName}`), the installer's "already
+set, leaving alone" guard will skip it. To pick up the new format, manually
+edit your editor's `settings.json` and replace the `window.title` value with
+`"${activeEditorShort} [${rootName}]"`.
 
 ## Requirements
 
