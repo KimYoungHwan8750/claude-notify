@@ -95,13 +95,13 @@ Get-Process -Name $processName -ErrorAction SilentlyContinue | ForEach-Object {
 
 $isProjectOpen = $false
 if ($pids.Count -gt 0) {
-    $titles = [ToastWinApi]::GetTitlesForPids($pids)
+    $winTitles = [ToastWinApi]::GetTitlesForPids($pids)
     # Word-boundary lookaround regex — works for both old (`file - project - ...`)
     # and new (`file [project]`) title formats. Prevents partial matches like
     # project="lib" matching "library.txt".
     $pattern = "(?<!\w)" + [regex]::Escape($project) + "(?!\w)"
-    foreach ($title in $titles) {
-        if ($title -match $pattern) {
+    foreach ($winTitle in $winTitles) {
+        if ($winTitle -match $pattern) {
             $isProjectOpen = $true
             break
         }
